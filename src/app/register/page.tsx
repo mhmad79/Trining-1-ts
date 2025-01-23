@@ -4,7 +4,7 @@ import React from 'react'
 
 type Props = {}
 
-export default function page({}: Props) {
+export default function RegisterPage({}: Props) {
   return (
     <div className=" py-10">
             <NamePage name={'سجل المزامنة'} />

@@ -23,11 +23,11 @@ export default function Register({}: Props) {
             </div>
                 {/* icon */}
             <div className=" flex gap-3 justify-end my-5">
-                <ArrowUpRight  />
-                <BarsArrowDown />
-                <DocumentArrowDown />
-                <ArrowPointingIn />
-                <Delete />
+                <ArrowUpRight className=" re-icon " />
+                <BarsArrowDown className='re-icon' />
+                <DocumentArrowDown className='re-icon' />
+                <ArrowPointingIn className='re-icon' />
+                <Delete className='re-icon' />
             </div>
 
             <div >

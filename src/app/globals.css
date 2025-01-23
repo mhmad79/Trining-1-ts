@@ -28,3 +28,7 @@ li {
 .li-register li {
   @apply border p-2 
 }
+
+.re-icon {
+  @apply size-7 border border-black p-1
+}
