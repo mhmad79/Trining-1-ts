@@ -1,55 +1,124 @@
+'use client'
+import IconMenu from '@/icons/menu'
 import Link from 'next/link'
-import React from 'react'
+import React, { useState, useEffect } from 'react'
 
 type Props = {}
 
 export default function Header({}: Props) {
-  return (
-    <div >
+    const [isMenuOpen, setIsMenuOpen] = useState(false)
+
+    // دالة لإغلاق القائمة عند الضغط على أي رابط
+    const handleLinkClick = () => {
+        setIsMenuOpen(false)
+    }
+
+    // دالة لإغلاق القائمة عند الضغط خارجها
+    useEffect(() => {
+        const handleClickOutside = (event: MouseEvent) => {
+            if (isMenuOpen && !(event.target as HTMLElement).closest('.menu-container')) {
+                setIsMenuOpen(false)
+            }
+        }
+        document.addEventListener('click', handleClickOutside)
+        return () => document.removeEventListener('click', handleClickOutside)
+    }, [isMenuOpen])
+
+    return (
+        <div>
             <header>
                 <nav className="flex justify-between items-center p-4 bg-gray-950 text-white max-h-14">
                     <div className="flex items-center gap-4">
                         <button className="px-4 py-2 bg-red-600 rounded hover:bg-red-700 transition">خروج</button>
                         <p className="text-lg font-semibold">! alaa مرحبا</p>
                     </div>
-                    <div>
-                        <ul className="flex space-x-6">
+                    <div className="menu-container">
+                        {/* القائمة للأجهزة الكبيرة */}
+                        <ul className="hidden space-x-6 md:flex">
                             <li>
                                 <details className="group relative">
                                     <summary className="cursor-pointer hover:text-gray-400 transition">الإعدادات</summary>
                                     <ul className="absolute bg-gray-800 text-white p-2 rounded shadow-lg hidden group-open:block">
-                                        <li className="hover:bg-gray-700 px-4 py-2 rounded"><Link href="#">1</Link></li>
-                                        <li className="hover:bg-gray-700 px-4 py-2 rounded"><Link href="#">2</Link></li>
-                                    </ul>
-                                </details>
-                            </li>
-                            <li>
-                                <details className="group relative ">
-                                    <summary className="cursor-pointer hover:text-gray-400 transition">الموقع</summary>
-                                    <ul className="absolute w-32  bg-gray-800 text-white p-2 rounded shadow-lg hidden group-open:block">
-                                        <li className="hover:bg-gray-700 px-4 py-2 rounded "><Link href="/sync">المزامنة</Link></li>
-                                        <li className="hover:bg-gray-700 px-4 py-2 rounded"><Link href="/register">سجل المزامنة</Link></li>
+                                        <li className="hover:bg-gray-700 px-4 py-2 rounded">
+                                            <Link href="#" onClick={handleLinkClick}>1</Link>
+                                        </li>
+                                        <li className="hover:bg-gray-700 px-4 py-2 rounded">
+                                            <Link href="#" onClick={handleLinkClick}>2</Link>
+                                        </li>
                                     </ul>
                                 </details>
                             </li>
                             <li>
                                 <details className="group relative">
-                                    <summary className="cursor-pointer hover:text-gray-400 transition">الجرد</summary>
-                                    <ul className="absolute bg-gray-800 text-white p-2 rounded shadow-lg hidden group-open:block">
-                                        <li className="hover:bg-gray-700 px-4 py-2 rounded"><Link href="#">1</Link></li>
-                                        <li className="hover:bg-gray-700 px-4 py-2 rounded"><Link href="#">2</Link></li>
+                                    <summary className="cursor-pointer hover:text-gray-400 transition">الموقع</summary>
+                                    <ul className="absolute w-32 bg-gray-800 text-white p-2 rounded shadow-lg hidden group-open:block">
+                                        <li className="hover:bg-gray-700 px-4 py-2 rounded">
+                                            <Link href="/sync" onClick={handleLinkClick}>المزامنة</Link>
+                                        </li>
+                                        <li className="hover:bg-gray-700 px-4 py-2 rounded">
+                                            <Link href="/register" onClick={handleLinkClick}>سجل المزامنة</Link>
+                                        </li>
                                     </ul>
                                 </details>
                             </li>
-                            <li><Link href="#" className="hover:text-gray-400 transition">الاحصائيات</Link></li>
-                            <li><Link href="#" className="hover:text-gray-400 transition">الحجوزات</Link></li>
-                            <li><Link href="#" className="hover:text-gray-400 transition">نماذج</Link></li>
-                            <li><Link href="#" className="hover:text-gray-400 transition">السجل</Link></li>
-                            <li><Link href="#" className="hover:text-gray-400 transition">عرض التسليم </Link></li>
+                            <li><Link href="#" className="hover:text-gray-400 transition" onClick={handleLinkClick}>الاحصائيات</Link></li>
+                            <li><Link href="#" className="hover:text-gray-400 transition" onClick={handleLinkClick}>الحجوزات</Link></li>
+                            <li><Link href="#" className="hover:text-gray-400 transition" onClick={handleLinkClick}>نماذج</Link></li>
+                            <li><Link href="#" className="hover:text-gray-400 transition" onClick={handleLinkClick}>السجل</Link></li>
+                            <li><Link href="#" className="hover:text-gray-400 transition" onClick={handleLinkClick}>عرض التسليم</Link></li>
                         </ul>
+
+                        {/* القائمة للأجهزة الصغيرة */}
+                        {isMenuOpen && (
+                            <div className="relative">
+                                <ul className="flex flex-col md:hidden absolute mt-7 w-60 p-9 bg-black gap-3 rounded shadow-lg">
+                                    <li>
+                                        <details className="group relative">
+                                            <summary className="flex cursor-pointer hover:text-gray-400 transition">الإعدادات</summary>
+                                            <ul className="absolute text-white p-2 rounded shadow-lg hidden group-open:block bg-black right-48">
+                                                <li className="hover:bg-gray-700 px-4 py-2 rounded">
+                                                    <Link href="#" onClick={handleLinkClick}>1</Link>
+                                                </li>
+                                                <li className="hover:bg-gray-700 px-4 py-2 rounded">
+                                                    <Link href="#" onClick={handleLinkClick}>2</Link>
+                                                </li>
+                                            </ul>
+                                        </details>
+                                    </li>
+                                    <li>
+                                        <details className="group relative">
+                                            <summary className="cursor-pointer hover:text-gray-400 transition">الموقع</summary>
+                                            <ul className="absolute w-32 text-white p-2 rounded shadow-lg hidden group-open:block bg-black right-48">
+                                                <li className="hover:bg-gray-700 px-4 py-2 rounded">
+                                                    <Link href="/sync" onClick={handleLinkClick}>المزامنة</Link>
+                                                </li>
+                                                <li className="hover:bg-gray-700 px-4 py-2 rounded">
+                                                    <Link href="/register" onClick={handleLinkClick}>سجل المزامنة</Link>
+                                                </li>
+                                            </ul>
+                                        </details>
+                                    </li>
+                                    <li><Link href="#" className="hover:text-gray-400 transition" onClick={handleLinkClick}>الاحصائيات</Link></li>
+                                    <li><Link href="#" className="hover:text-gray-400 transition" onClick={handleLinkClick}>الحجوزات</Link></li>
+                                    <li><Link href="#" className="hover:text-gray-400 transition" onClick={handleLinkClick}>نماذج</Link></li>
+                                    <li><Link href="#" className="hover:text-gray-400 transition" onClick={handleLinkClick}>السجل</Link></li>
+                                    <li><Link href="#" className="hover:text-gray-400 transition" onClick={handleLinkClick}>عرض التسليم</Link></li>
+                                </ul>
+                            </div>
+                        )}
+                    </div>
+
+                    {/* زر القائمة للأجهزة الصغيرة */}
+                    <div className="md:hidden relative">
+                        <button 
+                            className="focus:outline-none" 
+                            onClick={() => setIsMenuOpen(!isMenuOpen)}
+                        >
+                            <IconMenu className="text-white w-7 bg-black"/>
+                        </button>
                     </div>
                 </nav>
             </header>
         </div>
-  )
+    )
 }
