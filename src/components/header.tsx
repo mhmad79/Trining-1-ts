@@ -1,5 +1,5 @@
 'use client'
-import IconMenu from '@/icons/menu'
+import { FaBars } from "react-icons/fa";
 import Link from 'next/link'
 import React, { useState, useEffect } from 'react'
 
@@ -114,7 +114,7 @@ export default function Header({}: Props) {
                             className="focus:outline-none" 
                             onClick={() => setIsMenuOpen(!isMenuOpen)}
                         >
-                            <IconMenu className="text-white w-7 bg-black"/>
+                            <FaBars className="text-white w-7 bg-black"/>
                         </button>
                     </div>
                 </nav>
