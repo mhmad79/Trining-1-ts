@@ -3,7 +3,7 @@ import NamePage from './namePage'
 
 export default function Sync() {
   return (
-    <div className=" mt-2 ">
+    <div className="mt-2">
       {/* عنوان الصفحة */}
       <NamePage name={'مزامنة الموقع'} />
 
@@ -25,7 +25,7 @@ export default function Sync() {
             id="fatherName"
             type="text" 
             placeholder="اكتب اسم الأب" 
-            className="w-full p-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-400 outline-none"
+            className="w-full p-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-400 outline-none transition-all duration-300"
           />
         </div>
 
@@ -33,7 +33,7 @@ export default function Sync() {
         <div className="w-full">
           <select 
             id="options" 
-            className="w-full p-2 border border-gray-300 rounded-md bg-white focus:ring-2 focus:ring-blue-400"
+            className="w-full p-2 border border-gray-300 rounded-md bg-white focus:ring-2 focus:ring-blue-400 transition-all duration-300"
           >
             {Array.from({ length: 12 }, (_, i) => (
               <option key={i} value={`option${i + 1}`}>{`الخيار ${i + 1}`}</option>
@@ -50,7 +50,7 @@ export default function Sync() {
         {/* زر المزامنة */}
         <div className="flex justify-center">
           <button 
-            className="px-12 py-3 bg-blue-600 text-white font-medium rounded-md hover:bg-blue-700 transition-all"
+            className="px-12 py-3 bg-blue-600 text-white font-medium rounded-md hover:bg-blue-700 transition-all duration-300"
           >
             مزامنة
           </button>
