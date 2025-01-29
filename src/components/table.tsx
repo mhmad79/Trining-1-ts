@@ -1,275 +1,187 @@
 'use client';
-import { useState, useMemo } from "react";
-import { FaFilter, FaTrashAlt, FaPlus, FaInfoCircle, FaEdit } from "react-icons/fa";
 
-interface RowData {
+import {
+  MaterialReactTable,
+  useMaterialReactTable,
+  type MRT_ColumnDef,
+  MRT_GlobalFilterTextField,
+  MRT_TablePagination,
+  MRT_ToolbarAlertBanner,
+} from 'material-react-table';
+import {
+  Box,
+  Button,
+  Stack,
+  Table,
+  TableBody,
+  TableCell,
+  TableContainer,
+  TableHead,
+  TableRow,
+} from '@mui/material';
+import React, { useState, useMemo } from 'react';
+
+interface MyData {
   id: number;
-  type: string;
-  status: string;
-  sync: string;
-  startTime: string;
-  endTime: string;
+  endTime?: string;
+  startTime?: string;
+  sync?: string;
+  status?: string;
+  type?: string;
+  state?: string;
+  messageOfError?: string;
+  typeOfError?: string;
+  symbol?: string;
+  time?: string;
+  message?: string;
 }
 
-export default function DynamicTable() {
-  const initialData: RowData[] = [
-    { id: 1, type: "نوع 1", status: "ناجح", sync: "نعم", startTime: "12:00 PM", endTime: "12:30 PM" },
-    { id: 2, type: "نوع 2", status: "فشل", sync: "لا", startTime: "01:00 PM", endTime: "01:30 PM" },
-    { id: 3, type: "نوع 3", status: "ناجح", sync: "نعم", startTime: "02:00 PM", endTime: "02:15 PM" },
-  ];
+interface CustomTableProps<T extends MyData> {
+  columns: MRT_ColumnDef<T>[];
+  data: T[];
+  title?: string;
+  detailColumns?: MRT_ColumnDef<T>[];
+  detailData?: T[];
+}
 
-  const [data, setData] = useState<RowData[]>(initialData);
-  const [filter, setFilter] = useState<string>("");
-  const [isAdding, setIsAdding] = useState<boolean>(false);
-  const [newRow, setNewRow] = useState<RowData>({
-    id: 0,
-    type: "",
-    status: "",
-    sync: "",
-    startTime: "",
-    endTime: ""
+const CustomTable = <T extends MyData>({
+  columns,
+  data,
+  detailColumns,
+  detailData,
+}: CustomTableProps<T>) => {
+  const [showDetails, setShowDetails] = useState(false);
+  const [detailsRowData, setDetailsRowData] = useState<T | null>(null);
+
+  const table = useMaterialReactTable({
+    columns,
+    data,
+    enableRowSelection: false,
+    enableMultiRowSelection: false,
+    enableGlobalFilter: true,
+    initialState: {
+      pagination: { pageSize: 5, pageIndex: 0 },
+      showGlobalFilter: true,
+    },
+    muiPaginationProps: {
+      rowsPerPageOptions: [5, 10, 15],
+      variant: 'outlined',
+    },
+    paginationDisplayMode: 'pages',
   });
 
-  const [showDetails, setShowDetails] = useState<number | null>(null);
-  const [editingRow, setEditingRow] = useState<RowData | null>(null);
-
-  // تصفية البيانات باستخدام useMemo لتجنب إعادة التصفية غير الضرورية
-  const filteredData = useMemo(() => {
-    return data.filter(row => row.type.includes(filter));
-  }, [data, filter]);
-
-  // تفعيل أو إلغاء إضافة صف جديد
-  const toggleAddRow = () => {
-    setIsAdding(!isAdding);
-    if (isAdding) {
-      setNewRow({ id: 0, type: "", status: "", sync: "", startTime: "", endTime: "" });
-    }
+  const handleDetailsClick = (rowData: T) => {
+    setDetailsRowData(rowData);
+    setShowDetails(true);
   };
 
-  // إضافة صف جديد
-  const addRow = () => {
-    setData(prev => [
-      ...prev,
-      { ...newRow, id: prev.length + 1 }
-    ]);
-    setIsAdding(false);
-    setNewRow({ id: 0, type: "", status: "", sync: "", startTime: "", endTime: "" });
+  const handleBackClick = () => {
+    setShowDetails(false);
+    setDetailsRowData(null);
   };
 
-  // التعامل مع التغيير في الحقول
-  const handleChange = (field: keyof RowData, value: string) => {
-    setNewRow(prev => ({ ...prev, [field]: value }));
-  };
+  const filteredDetailData = useMemo(() => {
+    return detailData?.filter((row) => row.id === detailsRowData?.id) || [];
+  }, [detailData, detailsRowData]);
 
-  // تعديل الصف
-  const handleEdit = (row: RowData) => {
-    setEditingRow(row);
-  };
-
-  // حفظ التعديلات
-  const saveEdit = () => {
-    setData(prev => prev.map(row => row.id === editingRow?.id ? editingRow! : row));
-    setEditingRow(null);
-  };
-
-  // إلغاء التعديل
-  const cancelEdit = () => {
-    setEditingRow(null);
-  };
-
-  // حذف الصف
-  const deleteRow = (id: number) => {
-    setData(prev => prev.filter(row => row.id !== id));
-  };
+  const updatedColumns = useMemo(() => [
+    ...columns,
+    {
+      id: 'actions', // 
+      header: '',
+      Cell: ({ row }) => (
+        <Button variant="contained" color="primary" onClick={() => handleDetailsClick(row.original)}>
+          تفاصيل
+        </Button>
+      ),
+    },
+  ], [columns]);
 
   return (
-    <div className="p-4">
-      <div className="flex gap-3 justify-end mb-5">
-        <input
-          type="text"
-          placeholder="ابحث حسب النوع"
-          value={filter}
-          onChange={(e) => setFilter(e.target.value)}
-          className="p-2 border rounded"
-        />
-        <button onClick={() => setFilter("")} className="bg-red-500 text-white p-2 rounded">
-          <FaFilter /> إعادة ضبط
-        </button>
-      </div>
+    <Stack sx={{ m: '2rem 0' }}>
+      {!showDetails ? (
+        // <TableContainer sx={{ border: '1px solid #ccc', borderRadius: '4px' }}>
+          <MaterialReactTable
+            columns={updatedColumns}
+            data={data}
+            muiTableProps={{
+              sx: {
+                '& .MuiTableRow-root': {
+                  textAlign: 'center',
+                  border: '1px solid #eee'  ,  // إضافة حدود حول الصف
+                },
+                '& .MuiTableCell-root': {
+                  textAlign: 'center', 
+                  border: '1px solid #ccc', // إضافة حدود حول الخلايا داخل الصفوف
+                },
+              },
+            }}
+            muiTableHeadCellProps={{
+              sx: {
+                textAlign: 'center', // محاذاة النص في وسط الرأس
+                bgcolor: '#ddd'
+              },
+            }}
+          />
+        // </TableContainer>
+      ) : (
+        <Stack sx={{ m: '2rem 0' }}>
+          <Button variant="contained" color="secondary" onClick={handleBackClick} sx={{ mb: 2 }}>
+            الرجوع الى الجدول الرئيسي
+          </Button>
 
-      <div className=" flex justify-end">
-        <button onClick={toggleAddRow} className=" flex justify-end bg-green-500 text-white p-2 rounded mb-4">
-          <FaPlus /> {isAdding ? "إلغاء إضافة" : "إضافة صف جديد"}
-        </button>
-      </div>
+          <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' , padding: '20px 0' }}>
+            <MRT_GlobalFilterTextField table={table} />
+            <MRT_TablePagination table={table} />
+          </Box>
 
-      {isAdding && (
-        <div className="mb-4">
-          <h3 className="font-semibold mb-2 flex justify-start">إضافة صف جديد</h3>
-          <div className="flex gap-3 mb-3">
-            <input
-              type="text"
-              placeholder="النوع"
-              value={newRow.type}
-              onChange={(e) => handleChange('type', e.target.value)}
-              className="p-2 border rounded"
-            />
-            <input
-              type="text"
-              placeholder="الحالة"
-              value={newRow.status}
-              onChange={(e) => handleChange('status', e.target.value)}
-              className="p-2 border rounded"
-            />
-            <input
-              type="text"
-              placeholder="مزامنة"
-              value={newRow.sync}
-              onChange={(e) => handleChange('sync', e.target.value)}
-              className="p-2 border rounded"
-            />
-          </div>
-          <div className="flex gap-3 mb-3">
-            <input
-              type="text"
-              placeholder="وقت البدء"
-              value={newRow.startTime}
-              onChange={(e) => handleChange('startTime', e.target.value)}
-              className="p-2 border rounded"
-            />
-            <input
-              type="text"
-              placeholder="وقت الانتهاء"
-              value={newRow.endTime}
-              onChange={(e) => handleChange('endTime', e.target.value)}
-              className="p-2 border rounded"
-            />
-          </div>
-          <div className=" flex justify-end">
-            <button onClick={addRow} className=" bg-blue-500 text-white p-2 rounded ">
-              إضافة الصف
-            </button>
-          </div>
-        </div>
-      )}
+          <TableContainer>
+            <Table sx={{ border: '1px solid #ccc', borderRadius: '4px' }}>
+              <TableHead className=' bg-gray-200'>
+                <TableRow>
+                  {detailColumns?.map((column) => (
+                    <TableCell
+                      key={column.accessorKey}
+                      align="center"
+                      sx={{
+                        border: '1px solid #ccc',
+                        padding: '8px',
+                      }}
+                    >
+                      {column.header}
+                    </TableCell>
+                  ))}
+                </TableRow>
+              </TableHead>
 
-      <table className="w-full border-collapse border border-gray-200 mb-5">
-        <thead className="bg-gray-100">
-          <tr>
-            <th className="p-2 border">#</th>
-            <th className="p-2 border">النوع</th>
-            <th className="p-2 border">الحالة</th>
-            <th className="p-2 border">مزامنة</th>
-            <th className="p-2 border">وقت البدء</th>
-            <th className="p-2 border">وقت الانتهاء</th>
-            <th className="p-2 border">الإجراء</th>
-          </tr>
-        </thead>
-        <tbody>
-          {filteredData.map((row) => (
-            <tr key={row.id} className="text-center">
-              <td className="p-2 border">{row.id}</td>
-              <td className="p-2 border">{editingRow && editingRow.id === row.id ? (
-                <input
-                  type="text"
-                  value={editingRow.type}
-                  onChange={(e) => setEditingRow({ ...editingRow, type: e.target.value })}
-                  className="p-2 border rounded"
-                />
-              ) : row.type}</td>
-              <td className="p-2 border">{editingRow && editingRow.id === row.id ? (
-                <input
-                  type="text"
-                  value={editingRow.status}
-                  onChange={(e) => setEditingRow({ ...editingRow, status: e.target.value })}
-                  className="p-2 border rounded"
-                />
-              ) : row.status}</td>
-              <td className="p-2 border">{editingRow && editingRow.id === row.id ? (
-                <input
-                  type="text"
-                  value={editingRow.sync}
-                  onChange={(e) => setEditingRow({ ...editingRow, sync: e.target.value })}
-                  className="p-2 border rounded"
-                />
-              ) : row.sync}</td>
-              <td className="p-2 border">{editingRow && editingRow.id === row.id ? (
-                <input
-                  type="text"
-                  value={editingRow.startTime}
-                  onChange={(e) => setEditingRow({ ...editingRow, startTime: e.target.value })}
-                  className="p-2 border rounded"
-                />
-              ) : row.startTime}</td>
-              <td className="p-2 border">{editingRow && editingRow.id === row.id ? (
-                <input
-                  type="text"
-                  value={editingRow.endTime}
-                  onChange={(e) => setEditingRow({ ...editingRow, endTime: e.target.value })}
-                  className="p-2 border rounded"
-                />
-              ) : row.endTime}</td>
-              <td className="p-2 border">
-                <div className="flex gap-2 justify-center">
-                  {editingRow && editingRow.id === row.id ? (
-                    <>
-                      <button onClick={saveEdit} className="bg-blue-500 text-white p-2 rounded mx-1">
-                        حفظ
-                      </button>
-                      <button onClick={cancelEdit} className="bg-gray-500 text-white p-2 rounded mx-1">
-                        إلغاء
-                      </button>
-                    </>
-                  ) : (
-                    <>
-                      <button onClick={() => handleEdit(row)} className="bg-yellow-500 text-white p-2 rounded mx-1">
-                        <FaEdit /> تعديل
-                      </button>
-                      <button onClick={() => deleteRow(row.id)} className="bg-red-500 text-white p-2 rounded mx-1">
-                        <FaTrashAlt /> حذف
-                      </button>
-                    </>
-                  )}
-                  <button onClick={() => setShowDetails(row.id === showDetails ? null : row.id)} className="bg-blue-500 text-white p-2 rounded mx-1">
-                    <FaInfoCircle /> تفاصيل
-                  </button>
-                </div>
-              </td>
-            </tr>
-          ))}
-        </tbody>
-      </table>
-
-      {showDetails !== null && (
-        <div className="mt-6 overflow-x-auto">
-          <table className="w-full text-sm text-center border border-gray-300 bg-white shadow-sm">
-            <thead className="bg-gray-100">
-              <tr>
-                <th className="p-2 border">رسالة الخطأ</th>
-                <th className="p-2 border">نوع الخطأ</th>
-                <th className="p-2 border">الرمز</th>
-                <th className="p-2 border">الوقت</th>
-                <th className="p-2 border">الرسالة</th>
-                <th className="p-2 border">الحالة</th>
-              </tr>
-            </thead>
-            <tbody>
-              {filteredData
-                .filter(row => row.id === showDetails)
-                .map((row) => (
-                  <tr key={row.id} className="hover:bg-gray-50">
-                    <td className="p-2 border">{row.status === "فشل" ? "Unknown WooCommerce Restful API.version" : "No Errors"}</td>
-                    <td className="p-2 border">{row.status === "فشل" ? "خطأ" : "لا يوجد"}</td>
-                    <td className="p-2 border">{row.status === "فشل" ? "10337009" : "N/A"}</td>
-                    <td className="p-2 border">{row.status === "فشل" ? "1:13:25 30/12/2024 PM" : "N/A"}</td>
-                    <td className="p-2 border">{row.status === "فشل" ? "حصل خطأ خلال مزامنة المادة 1256800250" : "مزامنة ناجحة"}</td>
-                    <td className="p-2 border text-red-600 font-semibold">{row.status === "فشل" ? "فشل" : "ناجح"}</td>
-                  </tr>
+              <TableBody>
+                {filteredDetailData.map((row, rowIndex) => (
+                  <TableRow key={rowIndex}>
+                    {detailColumns?.map((column) => (
+                      <TableCell
+                        key={column.accessorKey}
+                        align="center"
+                        sx={{
+                          border: '1px solid #ccc',
+                          padding: '8px',
+                        }}
+                      >
+                        {row[column.accessorKey as keyof T] != null
+                          ? String(row[column.accessorKey as keyof T])
+                          : ''}
+                      </TableCell>
+                    ))}
+                  </TableRow>
                 ))}
-            </tbody>
-          </table>
-        </div>
+              </TableBody>
+            </Table>
+          </TableContainer>
+
+          <MRT_ToolbarAlertBanner stackAlertBanner table={table} />
+        </Stack>
       )}
-    </div>
+    </Stack>
   );
-}
+};
+
+export default CustomTable;
