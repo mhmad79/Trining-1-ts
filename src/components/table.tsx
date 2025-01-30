@@ -90,7 +90,7 @@ const CustomTable = <T extends MyData>({
       id: 'actions', // 
       header: '',
       Cell: ({ row }) => (
-        <Button variant="contained" color="primary" onClick={() => handleDetailsClick(row.original)}>
+        <Button variant="contained"  className='bg-red-600' onClick={() => handleDetailsClick(row.original)}>
           تفاصيل
         </Button>
       ),
@@ -126,7 +126,7 @@ const CustomTable = <T extends MyData>({
         // </TableContainer>
       ) : (
         <Stack sx={{ m: '2rem 0' }}>
-          <Button variant="contained" color="secondary" onClick={handleBackClick} sx={{ mb: 2 }}>
+          <Button variant="contained" className='bg-red-600' onClick={handleBackClick} sx={{ mb: 2 }}>
             الرجوع الى الجدول الرئيسي
           </Button>
 
