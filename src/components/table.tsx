@@ -118,7 +118,7 @@ const CustomTable = <T extends MyData>({
             }}
             muiTableHeadCellProps={{
               sx: {
-                textAlign: 'center', // محاذاة النص في وسط الرأس
+                padding: '0 0 0 60px',
                 bgcolor: '#ddd'
               },
             }}
